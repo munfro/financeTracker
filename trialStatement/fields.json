@@ -17,13 +17,14 @@
   { "IncExp": "Exp", "Type": "Travel", "Payee": "Ofo GB" },
   { "IncExp": "Inc", "Type": "Pay", "Payee": "Roofoods Limited" },
   { "IncExp": "Exp", "Type": "Travel", "Payee": "Taxi"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "The Varsity Club","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Swan & Castle","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Purple Turtle","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Cheuquers"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Red Lion"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Emporium","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "The Bridge","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Bar Fever","subType":"Clubbing"},
-  { "IncExp": "Exp", "Type": "Going out", "Payee": "Atik","subType":"Clubbing"}
+  { "IncExp": "Exp", "Type": "Social", "Payee": "The Varsity Club","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Swan & Castle","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Purple Turtle","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Cheuquers","subType":"Pub"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Red Lion"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Emporium","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "The Bridge","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Bar Fever","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Social", "Payee": "Atik","subType":"Clubbing"},
+  { "IncExp": "Exp", "Type": "Repayment", "Payee": "Annes"}
 ]

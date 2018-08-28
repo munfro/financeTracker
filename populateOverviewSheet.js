@@ -103,5 +103,6 @@ const populateExpTypesOverall = (
 };
 
 module.exports = {
-  populateOverview: populateOverview
+  populateOverview: populateOverview,
+  removeDuplicateUsingFilter: removeDuplicateUsingFilter
 };
