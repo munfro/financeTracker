@@ -1,0 +1,8 @@
+{
+  "payeeColumn": 1,
+  "dateColumn": 2,
+  "expenditureColumn": 3,
+  "incomeColumn": 4,
+  "accountColumn": 5,
+  "netTableTopLeft": "G3"
+}
