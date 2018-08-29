@@ -4,15 +4,15 @@ var layout = require(__dirname + "/monthSheetLayout.json");
 
 const populate = (statement, months, style) => {
   months.map(function(valueM, key) {
-    //var f = months[6].numString;
     var z = statement.filter(function(valueF) {
       return valueF.monthYear == valueM.numString;
     });
     sheet = valueM.sheet;
+
     z.map(function(value, key) {
-      sheet.cell(key + 2, layout.payeeColumn).string(value.payee);
+      sheet.cell(key + 2, layout.payeeColumn).string(value.field2);
       sheet.cell(key + 2, layout.dateColumn).string(value.field1);
-      if (Number(value.amount) > 0) {
+      if (value.amount > 0) {
         sheet
           .cell(key + 2, layout.incomeColumn)
           .number(Number(value.amount))
@@ -20,8 +20,11 @@ const populate = (statement, months, style) => {
       } else {
         sheet
           .cell(key + 2, layout.expenditureColumn)
-          .number(Number(value.amount.substring(1, value.amount.length)))
+          .number(Number(value.amount))
           .style(style);
+      }
+      if (value.accounted) {
+        sheet.cell(key + 2, layout.accountedColumn).string("Y");
       }
     });
     finalRow = z.length + 1;
@@ -62,7 +65,7 @@ const sums = (layout, finalRow, sheet, style) => {
     .cell(topLnum + 2, topLletter + 1)
     .formula(
       xl.getExcelCellRef(3, topLletter + 1) +
-        "-" +
+        "+" +
         xl.getExcelCellRef(topLnum + 1, topLletter + 1)
     )
     .style(style);

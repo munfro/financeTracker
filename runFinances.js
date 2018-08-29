@@ -4,7 +4,7 @@ var createExcelSheet = require(__dirname + "/createExcelSheet.js");
 var create = createExcelSheet.create;
 var fields = require(__dirname + "/trialStatement/fields.json");
 
-var statement = __dirname + "/trialStatement/oldStatement.csv";
+var statement = __dirname + "/trialStatement/allStatements.csv";
 //var fields = __dirname + "/trialStatement/fields.csv";
 
 async function runFinances() {

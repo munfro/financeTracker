@@ -10,12 +10,13 @@ var fields = require(__dirname + "/trialStatement/fields.json");
 const runCSV = (statement, fields) => {
   return new Promise(function(res, rej) {
     csv({
-      noheader: true
+      noheader: false
     })
       .fromFile(statement)
       .then(statementCSV => {
         var duration = statementDuration(statementCSV);
-        var breakdown = [];
+        var breakdownInc = [];
+        var breakdownExp = [];
         var subTypes = [];
         var subTypesTransactions = [];
 
@@ -25,14 +26,16 @@ const runCSV = (statement, fields) => {
             subType = removeDuplicateUsingFilter(subTypes);
 
             transac = statementCSV.filter(function(CSV) {
+              CSV.monthYear = monthYearString(CSV.field1);
               if (
                 CSV.field2.toUpperCase().indexOf(value.Payee.toUpperCase()) >= 0
               ) {
                 CSV.accounted = 1;
+                CSV.amount = Number(CSV.field3.replace(/,/g, ""));
+
                 return CSV;
               }
             });
-            //console.log(value.subType);
             if (!subTypesTransactions[0]) {
               subTypesTransactions.push({
                 subType: value.subType,
@@ -40,18 +43,19 @@ const runCSV = (statement, fields) => {
                 transactions: transac
               });
             } else {
+              var next = 0;
               subTypesTransactions.map(function(subType, subKey) {
                 if (value.subType == subType.subType) {
-                  console.log(value.subType);
                   subType.transactions = subType.transactions.concat(transac);
+                  next = 1;
                 } else {
-                  //console.log(value.subType);
-                  if (subKey == subTypesTransactions.length - 1) {
+                  if (subKey == subTypesTransactions.length - 1 && !next) {
                     subTypesTransactions.push({
                       subType: value.subType,
                       Type: value.Type,
                       transactions: transac
                     });
+                    next = 0;
                   }
                 }
               });
@@ -77,25 +81,29 @@ const runCSV = (statement, fields) => {
             //console.log(expenditure);
             monthlyInc = createMonthlySpend(income);
             monthlyExp = createMonthlySpend(expenditure);
-            //console.log(monthlyInc);
-            //console.log(monthlyExp);
-            breakdown.push({
-              Payee: value.Payee,
-              Type: value.Type,
-              monthlyInc: monthlyInc.monthly,
-              totalInc: monthlyInc.totalSpend,
-              monthlyExp: monthlyExp.monthly,
-              totalExp: monthlyExp.totalSpend
-            });
+
+            breakdownInc = breakdownPush(
+              monthlyInc,
+              value.Payee,
+              value.Type,
+              breakdownInc
+            );
+
+            breakdownExp = breakdownPush(
+              monthlyExp,
+              value.Payee,
+              value.Type,
+              breakdownExp
+            );
           }
           //}
         });
         //console.log(subTypesTransactions[0]);
-        subTypesTransactions.map(function(value) {
+        subTypesTransactions.map(function(value, jj) {
           //console.log(value.subType);
           expenditure = [];
           income = value.transactions.filter(function(val) {
-            if (val > 0) {
+            if (val.amount > 0) {
               return val;
             } else {
               expenditure.push(val);
@@ -104,32 +112,48 @@ const runCSV = (statement, fields) => {
           monthlyInc = createMonthlySpend(income);
           monthlyExp = createMonthlySpend(expenditure);
 
-          breakdown.push({
-            Payee: value.subType,
-            Type: value.Type,
-            monthlyInc: monthlyInc.monthly,
-            totalInc: monthlyInc.totalSpend,
-            monthlyExp: monthlyExp.monthly,
-            totalExp: monthlyExp.totalSpend
-          });
+          breakdownInc = breakdownPush(
+            monthlyInc,
+            value.subType,
+            value.Type,
+            breakdownInc
+          );
+          breakdownExp = breakdownPush(
+            monthlyExp,
+            value.subType,
+            value.Type,
+            breakdownExp
+          );
         });
-
-        //console.log(breakdown);
         otherExp = statementCSV.filter(function(value) {
+          value.amount = Number(value.field3.replace(/,/g, ""));
           return !value.accounted && Number(value.field3) < 0;
         });
         otherInc = statementCSV.filter(function(value) {
+          value.amount = Number(value.field3.replace(/,/g, ""));
           return !value.accounted && Number(value.field3) > 0;
         });
-        //console.log(breakdown[breakdown.length - 1]);
-        /*res({
-          breakdown: breakdown,
+        otherIncMonthly = createMonthlySpend(otherInc);
+        otherExpMonthly = createMonthlySpend(otherExp);
+        breakdownInc.push({
+          Payee: "Other",
+          Type: "Other",
+          monthlyInc: otherIncMonthly.monthly,
+          totalInc: otherIncMonthly.totalSpend
+        });
+        breakdownExp.push({
+          Payee: "Other",
+          Type: "Other",
+          monthlyInc: otherExpMonthly.monthly,
+          totalInc: otherExpMonthly.totalSpend
+        });
+
+        res({
           duration: duration,
-          statement: statementCSV
-        });*/
-        //console.log(subTypes);
-        subTypes = removeDuplicateUsingFilter(subTypes);
-        //console.log(subTypes);
+          statement: statementCSV,
+          breakdownInc: breakdownInc,
+          breakdownExp: breakdownExp
+        });
       });
     //});
   });
@@ -213,6 +237,17 @@ const finalMonthPush = (
   return monthly;
 };
 
+const breakdownPush = (monthly, payee, type, breakdown) => {
+  if (monthly.totalSpend != 0) {
+    breakdown.push({
+      Payee: payee,
+      Type: type,
+      monthlyInc: monthly.monthly,
+      totalInc: monthly.totalSpend
+    });
+  }
+  return breakdown;
+};
 const monthlySpendPush = (field, ammount) => {
   return { monthYear: monthYearString(field), monthTot: ammount };
 };
@@ -226,127 +261,6 @@ const statementDuration = input => {
   return [first, last];
 };
 
-//var x = runCSV(statement, fields);
-
-const otherSort = (input, amount, totalSpend, value) => {
-  if (input.length) {
-    var key = input.length - 1;
-    var monthYear = monthYearString(value.field1);
-
-    if (input[key].monthYear == monthYear) {
-      input[key].monthTot = input[key].monthTot + amount;
-    } else {
-      input.push(monthlySpendPush(value.field1, ammount));
-    }
-  } else {
-    input.push(monthlySpendPush(value.field1, ammount));
-  }
-  return (totalSpend = totalSpend + ammount);
-};
-
-const pullNoSubType = value => {
-  if (!value.subType) {
-    console.log(value);
-    noSubType.push(value);
-  }
-};
-
-runCSV(statement, fields);
-
 module.exports = {
   runCSV: runCSV
 };
-
-/* var breakdown = [];
-        var noSubType = [];
-        var subType = [];
-        noSubType = fields.filter(function(value) {
-          if (value.subType) {
-            subType.push(value);
-          } else {
-            return value;
-          }
-        });
-        console.log(subType);
-
-        fields.map(function(value) {
-          value.Payee = value.Payee.toUpperCase();
-          var totalSpend = 0;
-          var monthlySpend = [];
-
-          statementCSV.map(function(value2) {
-            value2.payee = value2.field2.substring(
-              0,
-              value2.field2.indexOf("  ")
-            );
-            value2.amount = value2.field3.replace(/,/g, "");
-            value2.monthYear = monthYearString(value2.field1);
-            if (value2.payee.toUpperCase().indexOf(value.Payee) >= 0) {
-              value2.accounted = 1;
-              ammount = Number(value2.field3);
-              if (monthlySpend.length) {
-                var key = monthlySpend.length - 1;
-                var monthYear = monthYearString(value2.field1);
-                if (monthlySpend[key].monthYear == monthYear) {
-                  monthlySpend[key].monthTot =
-                    monthlySpend[key].monthTot + ammount;
-                } else {
-                  monthlySpend.push(monthlySpendPush(value2.field1, ammount));
-                }
-              } else {
-                monthlySpend.push(monthlySpendPush(value2.field1, ammount));
-              }
-              totalSpend = totalSpend + ammount;
-            }
-          }); 
-          breakdown.push({
-            Payee: value.Payee,
-            Type: value.Type,
-            TotalSpend: totalSpend,
-            monthlySpend: monthlySpend
-          });
-        });
-
-        var totalSpend = { income: 0, expenditure: 0 };
-        var monthlySpend = [];
-        var monthlySpend = {
-          income: [],
-          expenditure: []
-        };
-
-        statementCSV.map(function(value) {
-          if (!value.accounted) {
-            ammount = Number(value.field3.replace(/,/g, ""));
-            if (ammount < 0) {
-              totalSpend.expenditure = otherSort(
-                monthlySpend.expenditure,
-                ammount,
-                totalSpend.expenditure,
-                value
-              );
-            } else {
-              totalSpend.income = otherSort(
-                monthlySpend.income,
-                ammount,
-                totalSpend.income,
-                value
-              );
-            }
-          }
-        });
-
-        breakdown.push([
-          {
-            Payee: "OtherExp",
-            Type: "OtherExp",
-            TotalSpend: totalSpend.expenditure,
-            monthlySpend: monthlySpend.expenditure
-          },
-          {
-            Payee: "OtherInc",
-            Type: "OtherInc",
-            TotalSpend: totalSpend.income,
-            monthlySpend: monthlySpend.income
-          }
-        ]);
-*/

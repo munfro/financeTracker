@@ -6,19 +6,12 @@ var fields = require(__dirname + "/trialStatement/fields.json");
 const populateOverview = (months, overview, breakdown) => {
   populateTopRows(months, overview, layout);
 
-  incTypes = [];
-  expTypes = [];
-  fields.map(function(value) {
-    if (value.IncExp == "Inc") {
-      incTypes.push(value.Type);
-    } else {
-      expTypes.push(value.Type);
-    }
+  types = breakdown.map(function(value) {
+    return value.Type;
   });
-  incTypes = removeDuplicateUsingFilter(incTypes);
-  expTypes = removeDuplicateUsingFilter(expTypes);
+  types = removeDuplicateUsingFilter(types);
 
-  populateExpTypesOverall(expTypes, breakdown, layout, overview, months);
+  populateTypes(types, breakdown, layout, overview, months);
 };
 
 function removeDuplicateUsingFilter(arr) {
@@ -39,51 +32,44 @@ const populateTopRows = (months, overview, layout) => {
   });
 };
 
-const populateExpTypesOverall = (
-  expTypes,
-  breakdown,
-  layout,
-  overview,
-  months
-) => {
+const populateTypes = (types, breakdown, layout, overview, months) => {
   expenditureRow = xl.getExcelRowCol(layout.expenditureCell).row;
   expenditureCol = xl.getExcelRowCol(layout.expenditureCell).col;
-  overview.cell(expenditureRow, expenditureCol).string("Expenditure");
 
-  var baseRow = expenditureRow + expTypes.length + 4;
-  overview
-    .cell(expenditureRow + expTypes.length + 1, expenditureCol)
-    .string("Other");
+  var baseRow = expenditureRow + types.length + 3;
+
   var row = baseRow;
 
-  expTypes.map(function(value, key) {
+  types.map(function(value, key) {
     overview.cell(row, expenditureCol).string(value);
-    typeRow = expenditureRow + key + 1;
+    typeRow = expenditureRow + key;
     overview.cell(typeRow, expenditureCol).string(value);
 
     row = row + 1;
     //filters for category/type of transaction being added
-    z = breakdown.filter(function(val) {
+    breakdownType = breakdown.filter(function(val) {
       return value == val.Type;
     });
-    //console.log(z.length);
-    //console.log(z[0].monthlySpend);
+    //console.log(breakdownType);
+    //console.log(breakdownType.length);
+    //console.log(breakdownType[0].monthlyInc);
     overview.cell(row, expenditureCol).string(value);
     firstRow = row;
-    //console.log(z.length);
+    //console.log(breakdownType.length);
     //maps monthly spending of each payee, putting each in row by row
-    z.map(function(val) {
+    breakdownType.map(function(val, keyz) {
       //if (key < 1 && keyz < 1) {
-      //console.log(val.monthlySpend);
-      if (val.monthlySpend) {
-        val.monthlySpend.map(function(monthVal, keys) {
+      //console.log(val);
+      //console.log(val.monthlyInc);
+      if (val.monthlyInc) {
+        val.monthlyInc.map(function(monthVal, keys) {
           var x = months.findIndex(function(obj) {
-            return obj.numString == monthVal.monthYear;
+            return obj.numString == monthVal.date;
           });
-          overview.cell(row, expenditureCol + 1 + x).number(monthVal.monthTot);
+          overview.cell(row, expenditureCol + 1 + x).number(monthVal.amount);
           colLetter = xl.getExcelAlpha(expenditureCol + 1 + x);
 
-          lastRow = firstRow + z.length - 1;
+          lastRow = firstRow + breakdownType.length - 1;
           overview
             .cell(typeRow, expenditureCol + 1 + x)
             .formula(
@@ -99,7 +85,7 @@ const populateExpTypesOverall = (
     lastRow = row;
     row = row + 1;
   });
-  //console.log(expTypes);
+  //console.log(types);
 };
 
 module.exports = {

@@ -4,5 +4,6 @@
   "expenditureColumn": 3,
   "incomeColumn": 4,
   "accountColumn": 5,
+  "accountedColumn": 6,
   "netTableTopLeft": "G3"
 }

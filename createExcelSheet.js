@@ -39,7 +39,9 @@ const create = input => {
 
   var months = createMonthSheets(input.duration, months, wb);
   populateMonths(input.statement, months, numberStyle);
-  populateOverview(months, expOverview, input.breakdown);
+  populateOverview(months, expOverview, input.breakdownExp);
+  populateOverview(months, incOverview, input.breakdownInc);
+
   wb.write("Finances.xlsx");
 };
 

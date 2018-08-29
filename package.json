@@ -10,10 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "csv-reader": "^1.0.3",
+    "csv-writer": "^1.2.0",
     "csvtojson": "^2.0.4",
+    "d3-node": "^2.0.1",
     "excel4node": "^1.5.0",
     "express": "^4.16.3",
     "fs": "0.0.1-security",
+    "lodash": "^4.17.10",
     "pdf-parse": "^1.0.8",
     "plotly": "^1.0.6",
     "prompt": "^1.0.0"

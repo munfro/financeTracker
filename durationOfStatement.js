@@ -55,6 +55,7 @@ const formatMonthSheet = sheet => {
   sheet.cell(1, 3).string("Expenditure");
   sheet.cell(1, 4).string("Income");
   sheet.cell(1, 5).string("Account");
+  sheet.cell(1, 6).string("In Overview");
 };
 module.exports = {
   createMonthSheets: createMonthSheets
