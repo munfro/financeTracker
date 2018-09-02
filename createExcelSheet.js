@@ -42,7 +42,13 @@ const create = input => {
   populateOverview(months, expOverview, input.breakdownExp);
   populateOverview(months, incOverview, input.breakdownInc);
 
-  wb.write("Finances.xlsx");
+  wb.write(
+    "C:/Users/TMunr/Documents/Finances/Finances" +
+      String(Date().substring())
+        .replace(/ /g, "-")
+        .substring(4, 15) +
+      ".xlsx"
+  );
 };
 
 module.exports = {

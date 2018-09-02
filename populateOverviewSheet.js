@@ -1,7 +1,7 @@
 var xl = require("excel4node");
 
 var layout = require(__dirname + "/overviewSheetLayout.json");
-var fields = require(__dirname + "/trialStatement/fields.json");
+var fields = require(__dirname + "/fields.json");
 
 const populateOverview = (months, overview, breakdown) => {
   populateTopRows(months, overview, layout);

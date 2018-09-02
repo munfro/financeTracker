@@ -3,9 +3,9 @@ var csv = require("csvtojson");
 
 var excelSheet = require(__dirname + "/populateOverviewSheet.js");
 var removeDuplicateUsingFilter = excelSheet.removeDuplicateUsingFilter;
-var statement = __dirname + "/trialStatement/oldStatement.csv";
-//var fields = __dirname + "/trialStatement/fields.csv";
-var fields = require(__dirname + "/trialStatement/fields.json");
+
+//var statement = __dirname + "/trialStatement/oldStatement.csv";
+//var fields = require(__dirname + "/trialStatement/fields.json");
 
 const runCSV = (statement, fields) => {
   return new Promise(function(res, rej) {

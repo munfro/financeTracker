@@ -2,9 +2,6 @@ var fs = require("fs");
 var csv = require("csvtojson");
 var prompt = require("prompt");
 
-//var graphMaking = require(__dirname + "/graphMaking.js");
-//lineGraph = graphMaking.lineGraph;
-
 const runCSV = (statement, fields) => {
   csv({})
     .fromFile(fields)
@@ -104,14 +101,6 @@ const runCSV = (statement, fields) => {
             TotalSpend: totalSpend,
             monthlySpend: monthlySpend
           });
-
-          console.log(trial[0]);
-
-          /*
-          var line = lineGraph(trial);
-          line.then(function(val) {
-            console.log(val);
-          }); //*/
         });
     });
 };
